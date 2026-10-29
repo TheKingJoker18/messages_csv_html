@@ -20,6 +20,7 @@
             --icon-bg: radial-gradient(circle, rgba(96, 165, 250, 0.4), transparent);
             --shadow: 0 60px 80px -60px rgba(37, 99, 235, 0.5);
             --scroll-thumb: rgba(148, 163, 184, 0.4);
+            --btn-text: #ffffff;
         }
 
         [data-theme="light"] {
@@ -37,6 +38,7 @@
             --icon-bg: radial-gradient(circle, rgba(59, 130, 246, 0.25), transparent);
             --shadow: 0 60px 80px -60px rgba(59, 130, 246, 0.25);
             --scroll-thumb: rgba(148, 163, 184, 0.6);
+            --btn-text: #ffffff;
         }
 
         * {
@@ -57,31 +59,52 @@
             text-align: center;
             padding: 2.5rem 1.5rem 1rem;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
         }
 
-        .theme-toggle {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-primary);
-            padding: 0.6rem 1rem;
-            border-radius: 999px;
+        .header-controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .toggle-group {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 0.4rem 1rem;
+            background: var(--panel);
+        }
+
+        .toggle-group label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .toggle-btn {
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 999px;
             cursor: pointer;
+            font-size: 0.95rem;
             transition: all 160ms ease;
         }
 
-        .theme-toggle:hover {
-            background: var(--panel);
+        .toggle-btn.active {
+            background: var(--bubble-me);
+            color: #ffffff;
         }
 
         header h1 {
             font-size: clamp(1.8rem, 4vw, 3rem);
-            margin-bottom: 0.5rem;
         }
 
         header p {
@@ -151,7 +174,7 @@
         .btn {
             border: 1px solid transparent;
             background: var(--bubble-me);
-            color: var(--text-primary);
+            color: var(--btn-text);
             padding: 0.8rem 1.8rem;
             border-radius: 999px;
             font-weight: 600;
@@ -209,6 +232,43 @@
 
         .conversation-header p {
             color: var(--text-secondary);
+        }
+
+        .export-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .status-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f59e0b;
+        }
+
+        .status-dot.ok {
+            background: #22c55e;
+        }
+
+        .status-dot.err {
+            background: #ef4444;
         }
 
         .chat {
@@ -307,10 +367,6 @@
             color: #ffffff;
         }
 
-        [data-theme="light"] .message-group.me .bubble {
-            color: #ffffff;
-        }
-
         .bubble-text {
             display: flex;
             flex-direction: column;
@@ -335,26 +391,20 @@
             .message-group {
                 max-width: 90%;
             }
-            .theme-toggle {
-                position: static;
-                margin: 0 auto 1rem;
-            }
-            header {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 </head>
 <body>
     <header>
-        <button class="theme-toggle" id="themeToggle">
-            <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span id="themeLabel">Mode sombre</span>
-        </button>
+        <div class="header-controls">
+            <div class="toggle-group">
+                <label>Thème</label>
+                <button class="toggle-btn active" data-theme-choice="dark" type="button">Sombre</button>
+                <button class="toggle-btn" data-theme-choice="light" type="button">Clair</button>
+            </div>
+        </div>
         <h1>Messages CSV → HTML</h1>
         <p>Transformez vos exports SMS/Conversation en une vue claire et élégante.</p>
     </header>
@@ -375,12 +425,6 @@
                         </svg>
                         Sélectionner un fichier
                     </button>
-                    <button class="btn secondary hidden" id="downloadHtml" type="button">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 3V15M12 15L7 10M12 15L17 10M5 21H19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Télécharger en HTML
-                    </button>
                 </div>
                 <input type="file" id="fileInput" accept=".csv,text/csv,.CSV">
             </div>
@@ -391,7 +435,41 @@
                 <h2>Conversation</h2>
                 <p id="conversationMeta"></p>
             </div>
-            <div class="chat">
+            <div class="export-bar">
+                <button class="btn" id="exportHtml" type="button">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3V15M12 15L7 10M12 15L17 10M5 21H19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Télécharger HTML
+                </button>
+                <button class="btn secondary" id="exportPng" type="button">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/>
+                        <circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="1.6"/>
+                        <path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Exporter en PNG
+                </button>
+                <button class="btn secondary" id="exportPdf" type="button">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 2V8H20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Exporter en PDF
+                </button>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="status-dot" id="statusHtml2canvas"></span>
+                    <span>html2canvas</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot" id="statusJsPdf"></span>
+                    <span>jsPDF</span>
+                </div>
+            </div>
+            <div class="chat" id="captureTarget">
                 <div class="chat-scroll" id="chatScroll"></div>
             </div>
         </section>
@@ -408,46 +486,79 @@
         const conversation = document.getElementById('conversation');
         const chatScroll = document.getElementById('chatScroll');
         const conversationMeta = document.getElementById('conversationMeta');
-        const downloadHtml = document.getElementById('downloadHtml');
-        const themeToggle = document.getElementById('themeToggle');
-        const themeLabel = document.getElementById('themeLabel');
-        const themeIcon = document.getElementById('themeIcon');
+        const exportHtmlBtn = document.getElementById('exportHtml');
+        const exportPngBtn = document.getElementById('exportPng');
+        const exportPdfBtn = document.getElementById('exportPdf');
+        const captureTarget = document.getElementById('captureTarget');
+        const statusHtml2canvas = document.getElementById('statusHtml2canvas');
+        const statusJsPdf = document.getElementById('statusJsPdf');
+        const themeChoiceBtns = document.querySelectorAll('[data-theme-choice]');
+        const exportThemeBtns = document.querySelectorAll('[data-export-theme]');
 
         let renderedHtml = '';
         let currentFileName = 'messages_clean.html';
+        let messagesData = [];
+        let participantsText = '';
+        let currentUiTheme = 'dark';
+        let currentExportTheme = 'dark';
 
-        const moonIcon = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>';
-        const sunIcon = '<circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.6"/><line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>';
-
-        function initTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'light') {
-                document.documentElement.setAttribute('data-theme', 'light');
-                themeLabel.textContent = 'Mode clair';
-                themeIcon.innerHTML = sunIcon;
+        function checkDependencies() {
+            if (typeof html2canvas === 'function') {
+                statusHtml2canvas.classList.add('ok');
             } else {
-                document.documentElement.removeAttribute('data-theme');
-                themeLabel.textContent = 'Mode sombre';
-                themeIcon.innerHTML = moonIcon;
+                statusHtml2canvas.classList.add('err');
+            }
+            if (window.jspdf && window.jspdf.jsPDF) {
+                statusJsPdf.classList.add('ok');
+            } else {
+                statusJsPdf.classList.add('err');
             }
         }
 
-        themeToggle.addEventListener('click', () => {
-            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-            if (isLight) {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'dark');
-                themeLabel.textContent = 'Mode sombre';
-                themeIcon.innerHTML = moonIcon;
-            } else {
+        function initThemes() {
+            const savedUi = localStorage.getItem('uiTheme');
+            if (savedUi === 'light') {
+                currentUiTheme = 'light';
                 document.documentElement.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
-                themeLabel.textContent = 'Mode clair';
-                themeIcon.innerHTML = sunIcon;
+            } else {
+                currentUiTheme = 'dark';
+                document.documentElement.removeAttribute('data-theme');
             }
+            themeChoiceBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.themeChoice === currentUiTheme);
+            });
+
+            const savedExport = localStorage.getItem('exportTheme');
+            if (savedExport === 'light') {
+                currentExportTheme = 'light';
+            } else {
+                currentExportTheme = 'dark';
+            }
+            exportThemeBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.exportTheme === currentExportTheme);
+            });
+        }
+
+        themeChoiceBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentUiTheme = btn.dataset.themeChoice;
+                if (currentUiTheme === 'light') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+                localStorage.setItem('uiTheme', currentUiTheme);
+                themeChoiceBtns.forEach(b => b.classList.toggle('active', b === btn));
+            });
         });
 
-        initTheme();
+        exportThemeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentExportTheme = btn.dataset.exportTheme;
+                localStorage.setItem('exportTheme', currentExportTheme);
+                exportThemeBtns.forEach(b => b.classList.toggle('active', b === btn));
+            });
+        });
 
         selectFile.addEventListener('click', (e) => {
             e.preventDefault();
@@ -486,7 +597,7 @@
             }
         });
 
-        downloadHtml.addEventListener('click', () => {
+        exportHtmlBtn.addEventListener('click', () => {
             if (!renderedHtml) return;
             const blob = new Blob([renderedHtml], { type: 'text/html;charset=utf-8' });
             const url = URL.createObjectURL(blob);
@@ -498,6 +609,142 @@
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
+        });
+
+        exportPngBtn.addEventListener('click', async () => {
+            if (messagesData.length === 0) return;
+            if (typeof html2canvas !== 'function') {
+                alert('html2canvas non disponible. Vérifiez votre connexion internet ou rechargez la page.');
+                return;
+            }
+            exportPngBtn.disabled = true;
+            exportPngBtn.textContent = 'Génération...';
+            let wrapper = null;
+            try {
+                const clone = captureTarget.cloneNode(true);
+                const cloneScroll = clone.querySelector('#chatScroll') || clone.querySelector('.chat-scroll');
+                if (cloneScroll) {
+                    cloneScroll.style.maxHeight = 'none';
+                    cloneScroll.style.overflow = 'visible';
+                    cloneScroll.style.height = 'auto';
+                }
+                clone.style.maxHeight = 'none';
+                clone.style.overflow = 'visible';
+                clone.style.height = 'auto';
+
+                wrapper = document.createElement('div');
+                wrapper.style.position = 'absolute';
+                wrapper.style.left = '-10000px';
+                wrapper.style.top = '0';
+                wrapper.style.width = captureTarget.offsetWidth + 'px';
+                if (currentExportTheme === 'light') {
+                    wrapper.setAttribute('data-theme', 'light');
+                } else {
+                    wrapper.removeAttribute('data-theme');
+                }
+                wrapper.appendChild(clone);
+                document.body.appendChild(wrapper);
+
+                const canvas = await html2canvas(clone, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: currentExportTheme === 'light' ? '#f8fafc' : '#0b1026',
+                    windowWidth: clone.scrollWidth,
+                    windowHeight: clone.scrollHeight
+                });
+                const url = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = url;
+                const baseName = currentFileName.replace(/\.[^/.]+$/, '');
+                link.download = baseName + '_conversation.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (e) {
+                console.error(e);
+                alert('Erreur lors de la génération du PNG.');
+            } finally {
+                if (wrapper && wrapper.parentNode) {
+                    wrapper.parentNode.removeChild(wrapper);
+                }
+                exportPngBtn.disabled = false;
+                exportPngBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Exporter en PNG';
+            }
+        });
+
+        exportPdfBtn.addEventListener('click', async () => {
+            if (messagesData.length === 0) return;
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                alert('jsPDF non disponible. Vérifiez votre connexion internet ou rechargez la page.');
+                return;
+            }
+            exportPdfBtn.disabled = true;
+            exportPdfBtn.textContent = 'Génération...';
+            let wrapper = null;
+            try {
+                const clone = captureTarget.cloneNode(true);
+                const cloneScroll = clone.querySelector('#chatScroll') || clone.querySelector('.chat-scroll');
+                if (cloneScroll) {
+                    cloneScroll.style.maxHeight = 'none';
+                    cloneScroll.style.overflow = 'visible';
+                    cloneScroll.style.height = 'auto';
+                }
+                clone.style.maxHeight = 'none';
+                clone.style.overflow = 'visible';
+                clone.style.height = 'auto';
+
+                wrapper = document.createElement('div');
+                wrapper.style.position = 'absolute';
+                wrapper.style.left = '-10000px';
+                wrapper.style.top = '0';
+                wrapper.style.width = captureTarget.offsetWidth + 'px';
+                if (currentExportTheme === 'light') {
+                    wrapper.setAttribute('data-theme', 'light');
+                } else {
+                    wrapper.removeAttribute('data-theme');
+                }
+                wrapper.appendChild(clone);
+                document.body.appendChild(wrapper);
+
+                const canvas = await html2canvas(clone, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: currentExportTheme === 'light' ? '#f8fafc' : '#0b1026',
+                    windowWidth: clone.scrollWidth,
+                    windowHeight: clone.scrollHeight
+                });
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new window.jspdf.jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const imgWidth = pageWidth - 20;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 10;
+                pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight - 20;
+                while (heightLeft > 0) {
+                    position = heightLeft - imgHeight + 10;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight - 20;
+                }
+                const baseName = currentFileName.replace(/\.[^/.]+$/, '');
+                pdf.save(baseName + '_conversation.pdf');
+            } catch (e) {
+                console.error(e);
+                alert('Erreur lors de la génération du PDF.');
+            } finally {
+                if (wrapper && wrapper.parentNode) {
+                    wrapper.parentNode.removeChild(wrapper);
+                }
+                exportPdfBtn.disabled = false;
+                exportPdfBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2V8H20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Exporter en PDF';
+            }
         });
 
         function handleFile(event) {
@@ -513,8 +760,9 @@
                         alert("Aucun message trouvé. Vérifiez que le fichier est bien au format Date;Time;Sender;Message.");
                         return;
                     }
+                    messagesData = messages;
                     renderConversation(messages);
-                    downloadHtml.classList.remove('hidden');
+                    renderedHtml = generateStandaloneHtml(messages, participantsText);
                 } catch (error) {
                     console.error(error);
                     alert("Impossible de parser ce fichier. Vérifiez qu'il s'agit bien du CSV exporté au format Date;Time;Sender;Message (séparateur point-virgule).");
@@ -585,11 +833,11 @@
             }
 
             const senders = Array.from(new Set(messages.map(m => m.sender)));
-            const participants = senders.join(' • ');
-            conversationMeta.textContent = messages.length + ' message(s) • ' + participants;
+            participantsText = senders.join(' • ');
+            conversationMeta.textContent = messages.length + ' message(s) • ' + participantsText;
 
             let lastDate = null;
-            messages.forEach((msg, index) => {
+            messages.forEach((msg) => {
                 if (msg.date && msg.date !== lastDate) {
                     const separator = document.createElement('div');
                     separator.className = 'date-separator';
@@ -635,8 +883,6 @@
             setTimeout(() => {
                 chatScroll.scrollTop = chatScroll.scrollHeight;
             }, 50);
-
-            renderedHtml = generateStandaloneHtml(messages, participants);
         }
 
         function generateStandaloneHtml(messages, participants) {
@@ -666,7 +912,8 @@
                 chatContent += '                </div>\n';
             });
 
-            return '<!DOCTYPE html>\n<html lang="fr">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Conversation - ' + escapeHtml(currentFileName) + '</title>\n    <style>\n' + styles + '\n    </style>\n</head>\n<body>\n    <header>\n        <h1>Conversation</h1>\n        <p>' + escapeHtml(participants) + ' • ' + messages.length + ' message(s)</p>\n    </header>\n    <main>\n        <section class="conversation active">\n            <div class="chat">\n                <div class="chat-scroll">\n' + chatContent + '                </div>\n            </div>\n        </section>\n    </main>\n    <footer>\n        <p>Exporté depuis Messages CSV → HTML</p>\n    </footer>\n</body>\n</html>';
+            const themeAttr = ' data-theme="light"';
+            return '<!DOCTYPE html>\n<html lang="fr"' + themeAttr + '>\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Conversation - ' + escapeHtml(currentFileName) + '</title>\n    <style>\n' + styles + '\n    </style>\n</head>\n<body>\n    <header>\n        <h1>Conversation</h1>\n        <p>' + escapeHtml(participants) + ' • ' + messages.length + ' message(s)</p>\n    </header>\n    <main>\n        <section class="conversation active">\n            <div class="chat">\n                <div class="chat-scroll">\n' + chatContent + '                </div>\n            </div>\n        </section>\n    </main>\n    <footer>\n        <p>Exporté depuis Messages CSV → HTML</p>\n    </footer>\n</body>\n</html>';
         }
 
         function escapeHtml(text) {
@@ -674,6 +921,9 @@
             div.textContent = text === null || text === undefined ? '' : text;
             return div.innerHTML;
         }
+
+        initThemes();
+        checkDependencies();
     </script>
 </body>
 </html>
