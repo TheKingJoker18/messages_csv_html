@@ -103,6 +103,15 @@
             color: #ffffff;
         }
 
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
         header h1 {
             font-size: clamp(1.8rem, 4vw, 3rem);
         }
@@ -401,8 +410,8 @@
         <div class="header-controls">
             <div class="toggle-group">
                 <label>Thème</label>
-                <button class="toggle-btn active" data-theme-choice="dark" type="button">Sombre</button>
                 <button class="toggle-btn" data-theme-choice="light" type="button">Clair</button>
+                <button class="toggle-btn active" data-theme-choice="dark" type="button">Sombre</button>
             </div>
         </div>
         <h1>Messages CSV → HTML</h1>
@@ -475,6 +484,7 @@
         </section>
     </main>
     <footer>
+        <p>© 2026 TheKingJoker18 • <a href="https://github.com/TheKingJoker18/" target="_blank" rel="noopener noreferrer">GitHub</a></p>
         <p>Généré localement dans votre navigateur • Aucun fichier n'est envoyé vers un serveur</p>
     </footer>
 
@@ -520,9 +530,17 @@
             if (savedUi === 'light') {
                 currentUiTheme = 'light';
                 document.documentElement.setAttribute('data-theme', 'light');
-            } else {
+            } else if (savedUi === 'dark') {
                 currentUiTheme = 'dark';
                 document.documentElement.removeAttribute('data-theme');
+            } else {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    currentUiTheme = 'dark';
+                    document.documentElement.removeAttribute('data-theme');
+                } else {
+                    currentUiTheme = 'light';
+                    document.documentElement.setAttribute('data-theme', 'light');
+                }
             }
             themeChoiceBtns.forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.themeChoice === currentUiTheme);
@@ -531,12 +549,20 @@
             const savedExport = localStorage.getItem('exportTheme');
             if (savedExport === 'light') {
                 currentExportTheme = 'light';
-            } else {
+            } else if (savedExport === 'dark') {
                 currentExportTheme = 'dark';
+            } else {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    currentExportTheme = 'dark';
+                } else {
+                    currentExportTheme = 'light';
+                }
             }
-            exportThemeBtns.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.exportTheme === currentExportTheme);
-            });
+            if (exportThemeBtns && exportThemeBtns.length > 0) {
+                exportThemeBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.exportTheme === currentExportTheme);
+                });
+            }
         }
 
         themeChoiceBtns.forEach(btn => {
@@ -621,12 +647,19 @@
             exportPngBtn.textContent = 'Génération...';
             let wrapper = null;
             try {
-                const clone = captureTarget.cloneNode(true);
+                const section = document.getElementById('conversation');
+                const clone = section.cloneNode(true);
                 const cloneScroll = clone.querySelector('#chatScroll') || clone.querySelector('.chat-scroll');
                 if (cloneScroll) {
                     cloneScroll.style.maxHeight = 'none';
                     cloneScroll.style.overflow = 'visible';
                     cloneScroll.style.height = 'auto';
+                }
+                const cloneChat = clone.querySelector('.chat');
+                if (cloneChat) {
+                    cloneChat.style.maxHeight = 'none';
+                    cloneChat.style.overflow = 'visible';
+                    cloneChat.style.height = 'auto';
                 }
                 clone.style.maxHeight = 'none';
                 clone.style.overflow = 'visible';
@@ -636,7 +669,7 @@
                 wrapper.style.position = 'absolute';
                 wrapper.style.left = '-10000px';
                 wrapper.style.top = '0';
-                wrapper.style.width = captureTarget.offsetWidth + 'px';
+                wrapper.style.width = section.offsetWidth + 'px';
                 if (currentExportTheme === 'light') {
                     wrapper.setAttribute('data-theme', 'light');
                 } else {
@@ -682,12 +715,19 @@
             exportPdfBtn.textContent = 'Génération...';
             let wrapper = null;
             try {
-                const clone = captureTarget.cloneNode(true);
+                const section = document.getElementById('conversation');
+                const clone = section.cloneNode(true);
                 const cloneScroll = clone.querySelector('#chatScroll') || clone.querySelector('.chat-scroll');
                 if (cloneScroll) {
                     cloneScroll.style.maxHeight = 'none';
                     cloneScroll.style.overflow = 'visible';
                     cloneScroll.style.height = 'auto';
+                }
+                const cloneChat = clone.querySelector('.chat');
+                if (cloneChat) {
+                    cloneChat.style.maxHeight = 'none';
+                    cloneChat.style.overflow = 'visible';
+                    cloneChat.style.height = 'auto';
                 }
                 clone.style.maxHeight = 'none';
                 clone.style.overflow = 'visible';
@@ -697,7 +737,7 @@
                 wrapper.style.position = 'absolute';
                 wrapper.style.left = '-10000px';
                 wrapper.style.top = '0';
-                wrapper.style.width = captureTarget.offsetWidth + 'px';
+                wrapper.style.width = section.offsetWidth + 'px';
                 if (currentExportTheme === 'light') {
                     wrapper.setAttribute('data-theme', 'light');
                 } else {
@@ -913,7 +953,7 @@
             });
 
             const themeAttr = ' data-theme="light"';
-            return '<!DOCTYPE html>\n<html lang="fr"' + themeAttr + '>\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Conversation - ' + escapeHtml(currentFileName) + '</title>\n    <style>\n' + styles + '\n    </style>\n</head>\n<body>\n    <header>\n        <h1>Conversation</h1>\n        <p>' + escapeHtml(participants) + ' • ' + messages.length + ' message(s)</p>\n    </header>\n    <main>\n        <section class="conversation active">\n            <div class="chat">\n                <div class="chat-scroll">\n' + chatContent + '                </div>\n            </div>\n        </section>\n    </main>\n    <footer>\n        <p>Exporté depuis Messages CSV → HTML</p>\n    </footer>\n</body>\n</html>';
+            return '<!DOCTYPE html>\n<html lang="fr"' + themeAttr + '>\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Conversation - ' + escapeHtml(currentFileName) + '</title>\n    <style>\n' + styles + '\n    </style>\n</head>\n<body>\n    <header>\n        <h1>Conversation</h1>\n        <p>' + escapeHtml(participants) + ' • ' + messages.length + ' message(s)</p>\n    </header>\n    <main>\n        <section class="conversation active">\n            <div class="chat">\n                <div class="chat-scroll">\n' + chatContent + '                </div>\n            </div>\n        </section>\n    </main>\n    <footer>\n        <p>© 2026 TheKingJoker18 • <a href="https://github.com/TheKingJoker18/" target="_blank" rel="noopener noreferrer">GitHub</a></p>\n        <p>Exporté depuis Messages CSV → HTML</p>\n    </footer>\n</body>\n</html>';
         }
 
         function escapeHtml(text) {
